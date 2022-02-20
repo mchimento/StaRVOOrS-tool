@@ -9,6 +9,7 @@ import UpgradePPDATE
 import ErrM
 import Java.JavaLanguage
 import System.IO
+import Control.DeepSeq
 import Control.Lens hiding(Context,pre)
 
 -------------------------------------------------
@@ -58,8 +59,10 @@ annotateTmpFiles i output_add jpath jinfo ys jxs consts_jml =
      let nullable   = updateTmpFileCInv cl jinfo cinvs
      let specPublic = updateSpecPublic cl jinfo nullable
      let contracts  = genTmpFilesConst (main,cl) consts_jml specPublic
-     writeFile tmp contracts     
-
+     rnf contracts `seq` (writeFile tmp contracts)
+     --use of rnf [s] `seq` [...] to force reading the content of the
+     --file and close it
+     
 ---------------------------------------------
 -- Injecting JML annotations for contracts --
 ---------------------------------------------
